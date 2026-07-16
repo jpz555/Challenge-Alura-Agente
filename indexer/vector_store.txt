@@ -1,0 +1,116 @@
+"""
+=========================================================
+Indexer - Vector Store
+=========================================================
+
+Responsabilidad:
+    Crear y administrar la base vectorial ChromaDB.
+
+Versión:
+    1.0.0
+=========================================================
+"""
+
+from pathlib import Path
+from typing import List
+
+from langchain_core.documents import Document
+from langchain_chroma import Chroma
+
+
+class VectorStore:
+    """
+    Administra la base vectorial ChromaDB.
+    """
+
+    COLLECTION_NAME = "logimind_knowledge_base"
+
+    def __init__(self, persist_directory: Path, embedding_function):
+
+        self.persist_directory = str(persist_directory)
+
+        self.embedding_function = embedding_function
+
+        self.db = None
+
+    # =====================================================
+    # CREAR / CARGAR BASE VECTORIAL
+    # =====================================================
+
+    def create(self, documents: List[Document]):
+
+        self.db = Chroma.from_documents(
+
+            documents=documents,
+
+            embedding=self.embedding_function,
+
+            collection_name=self.COLLECTION_NAME,
+
+            persist_directory=self.persist_directory
+
+        )
+
+        return self.db
+
+    # =====================================================
+    # CARGAR BASE EXISTENTE
+    # =====================================================
+
+    def load(self):
+
+        self.db = Chroma(
+
+            collection_name=self.COLLECTION_NAME,
+
+            embedding_function=self.embedding_function,
+
+            persist_directory=self.persist_directory
+
+        )
+
+        return self.db
+
+    # =====================================================
+    # RETRIEVER
+    # =====================================================
+
+    def as_retriever(self, k: int = 4):
+
+        if self.db is None:
+
+            raise RuntimeError(
+                "La base vectorial aún no ha sido creada."
+            )
+
+        return self.db.as_retriever(
+
+            search_kwargs={
+                "k": k
+            }
+
+        )
+
+    # =====================================================
+    # INFORMACIÓN
+    # =====================================================
+
+    def info(self):
+
+        if self.db is None:
+
+            print("No existe una base vectorial cargada.")
+
+            return
+
+        print("=" * 60)
+
+        print("Vector Store")
+
+        print("=" * 60)
+
+        print(f"Colección : {self.COLLECTION_NAME}")
+
+        print(f"Directorio: {self.persist_directory}")
+
+        print("=" * 60)

@@ -22,3 +22,9 @@ sentence-transformers>=3.0.0
 
 chromadb>=1.0.0
 langchain-chroma>=0.2.0
+
+# modelos
+langchain-google-genai
+langchain-ollama
+langchain-groq
+

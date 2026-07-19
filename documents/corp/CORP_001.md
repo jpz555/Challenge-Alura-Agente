@@ -1,8 +1,8 @@
-# 01_company_master.md
+# CORP-001 - Documento Maestro de la Empresa
 
-# LogiMind Logistics S.A.S.
+## LogiMind Logistics S.A.S.
 
-## Documento Maestro de la Empresa (Single Source of Truth)
+### Single Source of Truth
 
 **Código:** CORP-001
 **Versión:** 1.0
@@ -27,7 +27,7 @@ Empresa privada dedicada a la gestión de la cadena de suministro, transporte, a
 
 ## Cobertura
 
-Nacional (Colombia)
+Nacional (Colombia)c
 
 ## Año de fundación
 

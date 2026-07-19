@@ -1,0 +1,48 @@
+"""
+orchestrator/nodes.py
+
+Nodos del grafo de LangGraph.
+"""
+
+from agents.base.state import AgentState
+
+from agents.supervisor.supervisor_agent import SupervisorAgent
+from agents.knowledge.knowledge_agent import KnowledgeAgent
+from agents.analytics.analytics_agent import AnalyticsAgent
+from agents.decision_support.decision_support_agent import DecisionSupportAgent
+
+# Agentes
+supervisor = SupervisorAgent()
+knowledge = KnowledgeAgent()
+analytics = AnalyticsAgent()
+decision_support = DecisionSupportAgent()
+
+
+def supervisor_node(state: AgentState) -> AgentState:
+    """
+    Nodo Supervisor.
+    """
+    print(type(state))
+    print(state)
+    return supervisor.invoke(state)
+
+
+def knowledge_node(state: AgentState) -> AgentState:
+    """
+    Nodo Knowledge.
+    """
+    return knowledge.invoke(state)
+
+def analytics_node(state: AgentState) -> AgentState:
+    """
+    Nodo Analytics.
+    """
+    return analytics.invoke(state)
+    
+
+def decision_node(state: AgentState) -> AgentState:
+    """
+    Nodo Decision Support.
+    """
+    # state.response = "Decision Support Agent aún no implementado."
+    return decision_support.invoke(state)

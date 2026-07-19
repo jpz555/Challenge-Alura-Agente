@@ -26,7 +26,6 @@ class KnowledgeRetriever:
     def __init__(self, vector_store: VectorStore, k: int = 4):
 
         self.vector_store = vector_store
-
         self.k = k
 
         self.retriever = self.vector_store.as_retriever(k=self.k)

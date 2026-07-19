@@ -38,7 +38,7 @@ DEFAULT_PROVIDER = "gemini"
 
 MODELS = {
     "gemini": "gemini-2.5-flash",
-    "ollama": "gemma:1b",
+    "ollama": "gemma3:1b",
     "groq": "llama-3.1-8b-instant"
 
 }

@@ -156,13 +156,10 @@ class PromptBuilder:
         context = self._build_context(documents)
 
         prompt = ChatPromptTemplate.from_messages(
-
             [
-
                 SystemMessagePromptTemplate.from_template(
                     self.system_template
                 ),
-
                 HumanMessagePromptTemplate.from_template(
                     """
                     =========================
@@ -184,7 +181,6 @@ class PromptBuilder:
         )
         
         prompt_value = prompt.invoke(
-
             {
 
                 "context": context,

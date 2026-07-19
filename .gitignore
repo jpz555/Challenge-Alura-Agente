@@ -1,0 +1,32 @@
+__pycache__/
+*.pyc
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Variables de entorno
+.env
+
+# Archivos generados
+processed/
+logs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# document_processor
+
+# Archivo temporal
+document_processor/chunker.txt
+
+# tree
+tree.txt
+tree.py
+
+agent_graph.png

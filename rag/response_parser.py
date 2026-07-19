@@ -77,20 +77,38 @@ class ResponseParser:
         """
         Convierte un texto JSON en RagResponse.
         """
-
         try:
-
+            text = self._extract_json(text)
             data = json.loads(text)
-
             return RagResponse.model_validate(data)
 
         except json.JSONDecodeError as e:
 
-            raise ValueError(
-                "La respuesta del modelo no es un JSON válido."
-            ) from e
+            raise ValueError("La respuesta del modelo no es un JSON válido.") from e
 
         except ValidationError as e:
 
             raise ValueError("La respuesta del modelo no cumple el esquema RagResponse.") from e
+    
+    def _extract_json(self, text: str) -> str:
+        """
+        Extrae el objeto JSON de la respuesta del modelo.
+
+        Soporta respuestas como:
+
+        ```json
+        {...}
+        ```
+
+        o texto adicional antes/después del JSON.
+        """
+
+        text = text.strip()
+
+        start = text.find("{")
+        end = text.rfind("}")
+
+        if start == -1 or end == -1:
+            raise ValueError("No se encontró un objeto JSON en la respuesta del modelo.")
+        return text[start:end + 1]
 

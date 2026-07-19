@@ -28,3 +28,9 @@ langchain-google-genai
 langchain-ollama
 langchain-groq
 
+# =====================================================
+# LangGraph
+# =====================================================
+
+langgraph>=0.2.0
+ipython>=8.0.0

@@ -89,7 +89,6 @@ class RagChain:
         logger.info("Nueva consulta recibida.")
 
         try:
-
             # --------------------------------------------------
             # Recuperación
             # --------------------------------------------------
@@ -109,10 +108,21 @@ class RagChain:
             # Inferencia
             # --------------------------------------------------
             self.response_parser = ResponseParser()
+            # print("\n========== PROMPT ==========")
+            # print(prompt)
             response = self.llm.invoke(prompt)
+            
+            # print("\n========== RESPUESTA LLM ==========")
+            # print(response)
 
             logger.info("Respuesta generada correctamente.")
             
+            # print("\n========== CONTENT ==========")
+
+            try:
+                print(response.content)
+            except AttributeError:
+                print(response)
             return self.response_parser.parse(response)
 
         except Exception as e:

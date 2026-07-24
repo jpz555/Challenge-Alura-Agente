@@ -30,8 +30,27 @@ class MetadataExtractor:
         """
         Enriquece el documento con sus metadatos.
         """
-
         text = document["content"]
+
+        # =====================================================
+        # Excel
+        # =====================================================
+        if document["extension"] == ".xlsx":
+
+            document["metadata"] = {
+                "document_code": "CORP-DATA",
+                "version": None,
+                "status": None,
+                "responsible_area": None,
+                "parent_document": None,
+                "date": None,
+                "title": document["file_name"],
+            }
+            return document
+
+        # =====================================================
+        # Markdown
+        # =====================================================
 
         metadata = {
             "document_code": self._extract_field(text, "Código"),

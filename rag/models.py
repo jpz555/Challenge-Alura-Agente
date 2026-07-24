@@ -69,16 +69,13 @@ class ModelFactory:
             raise ValueError(f"Proveedor no soportado: {provider}")
 
         model = model or MODELS[provider]
-
+        # print(f"Inicializando modelo Groq ({model})...")
         if provider == "gemini":
             llm = cls._create_gemini(model)
-
         elif provider == "ollama":
             llm = cls._create_ollama(model)
-
         elif provider == "groq":
             llm = cls._create_groq(model)
-
         else:
             raise ValueError(
                 f"Proveedor no soportado: {provider}"
@@ -89,15 +86,11 @@ class ModelFactory:
     # =====================================================
     # GEMINI
     # =====================================================
-
     @staticmethod
     def _create_gemini(model: str):
-
         # api_key = os.getenv(GEMINI_API_KEY)
-
         if not GEMINI_API_KEY:
             raise ValueError("No se encontró GEMINI_API_KEY.")
-
         return ChatGoogleGenerativeAI(
             model=model,
             google_api_key=GEMINI_API_KEY,
@@ -109,7 +102,6 @@ class ModelFactory:
     # =====================================================
     # OLLAMA
     # =====================================================
-
     @staticmethod
     def _create_ollama(model: str):
 
@@ -124,9 +116,8 @@ class ModelFactory:
 
     @staticmethod
     def _create_groq(model: str):
-
         # api_key = os.getenv(GROQ_API_KEY)
-        print("Seleccionando Modelo Groq")
+        # print("Seleccionando Modelo Groq")
         if not GROQ_API_KEY:
             raise ValueError("No se encontró GROQ_API_KEY.")
 

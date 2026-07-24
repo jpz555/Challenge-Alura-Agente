@@ -10,13 +10,16 @@ from agents.supervisor.supervisor_agent import SupervisorAgent
 from agents.knowledge.knowledge_agent import KnowledgeAgent
 from agents.analytics.analytics_agent import AnalyticsAgent
 from agents.decision_support.decision_support_agent import DecisionSupportAgent
+from tools.rag.rag_tool import RAGTool
+
 
 # Agentes
+# componentes compartidos
+rag_tool = RAGTool()
 supervisor = SupervisorAgent()
-knowledge = KnowledgeAgent()
-analytics = AnalyticsAgent()
-decision_support = DecisionSupportAgent()
-
+knowledge = KnowledgeAgent(rag_tool=rag_tool)
+analytics = AnalyticsAgent(rag_tool=rag_tool)
+decision_support = DecisionSupportAgent(rag_tool=rag_tool)
 
 def supervisor_node(state: AgentState) -> AgentState:
     """

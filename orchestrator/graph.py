@@ -21,7 +21,6 @@ class AgentGraph:
     """
 
     def __init__(self):
-        
         self.builder = StateGraph(AgentState)
         self._build()
         self.graph = self.builder.compile()

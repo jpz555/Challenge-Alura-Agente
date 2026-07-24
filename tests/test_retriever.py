@@ -31,20 +31,23 @@ def main():
 
     retriever = KnowledgeRetriever(vector_store=vector_store, k=4)
 
-    query = "¿Cuál es el horario operativo de la empresa?"
+    query = "¿Optimiza las rutas de distribución?"
 
     print(f"\nConsulta:\n{query}")
 
+
     results = retriever.search(query)
+
+    print("\n===== METADATA =====")
+
+    for i, doc in enumerate(results, start=1):
+        print(f"\nDocumento {i}")
+        print(doc.metadata)
     
 
-    retriever.print_results(results)
-    
-    print("\nChunk UUIDs recuperados:\n")
+    # retriever.print_results(results)
 
-    for doc in results:
-        print(doc.metadata["chunk_uuid"])
-
-
+    return
+     
 if __name__ == "__main__":
     main()

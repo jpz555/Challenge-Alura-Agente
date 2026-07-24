@@ -18,18 +18,22 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 class EmbeddingModel:
     """
-    Clase encargada de administrar el modelo de embeddings.
-    """
+    Clase encargada de Administrar el modelo de embeddings utilizado por el sistema.
 
+    El modelo se comparte entre todas las instancias para evitar
+    múltiples cargas en memoria.
+
+    """
     # DEFAULT_MODEL = "BAAI/bge-m3"
     DEFAULT_MODEL = "intfloat/multilingual-e5-small"
+    # Instancias compartidas
+    _sentence_model = None
+    _langchain_model = None
 
     def __init__(self, model_name: str = DEFAULT_MODEL):
 
         self.model_name = model_name
 
-        self._sentence_model = None
-        self._langchain_model = None
 
     # =====================================================
     # MODELO SENTENCE TRANSFORMERS
@@ -37,16 +41,14 @@ class EmbeddingModel:
 
     @property
     def sentence_model(self) -> SentenceTransformer:
-
-        if self._sentence_model is None:
-
+        if EmbeddingModel.sentence_model is None:
             print(f"Cargando modelo: {self.model_name}")
 
-            self._sentence_model = SentenceTransformer(
+            EmbeddingModel._sentence_model = SentenceTransformer(
                 self.model_name
             )
 
-        return self._sentence_model
+        return EmbeddingModel.sentence_model
 
     # =====================================================
     # MODELO LANGCHAIN
@@ -55,7 +57,7 @@ class EmbeddingModel:
     @property
     def langchain_model(self) -> HuggingFaceEmbeddings:
 
-        if self._langchain_model is None:
+        if EmbeddingModel._langchain_model is None:
 
             self._langchain_model = HuggingFaceEmbeddings(
                 model_name=self.model_name,
@@ -67,7 +69,7 @@ class EmbeddingModel:
                 }
             )
 
-        return self._langchain_model
+        return EmbeddingModel._langchain_model
 
     # =====================================================
     # INFORMACIÓN DEL MODELO
@@ -76,11 +78,7 @@ class EmbeddingModel:
     def info(self):
 
         print("=" * 60)
-
         print("Embedding Model")
-
         print("=" * 60)
-
         print(f"Modelo : {self.model_name}")
-
         print("=" * 60)

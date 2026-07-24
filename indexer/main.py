@@ -38,11 +38,9 @@ def main() -> None:
     print("=" * 80)
 
     try:
-
         # =====================================================
         # CARGAR CHUNKS
         # =====================================================
-
         print("\n[1/3] Cargando documentos...")
 
         loader = ChunkLoader(CHUNKS_OUTPUT_DIR)
@@ -59,7 +57,6 @@ def main() -> None:
         # =====================================================
         # MODELO DE EMBEDDINGS
         # =====================================================
-
         print("\n[2/3] Inicializando modelo de embeddings...")
 
         embedding_model = EmbeddingModel()
@@ -69,12 +66,11 @@ def main() -> None:
         # =====================================================
 
         print("\n[3/3] Construyendo base vectorial...")
-
         vector_store = VectorStore(
             persist_directory=VECTOR_DB_DIR,
             embedding_function=embedding_model.langchain_model,
         )
-
+        
         vector_store.create(documents)
 
         # =====================================================
@@ -84,7 +80,6 @@ def main() -> None:
         print("\n")
 
         vector_store.info()
-
         elapsed = perf_counter() - start
 
         print("\n" + "=" * 80)
@@ -100,7 +95,6 @@ def main() -> None:
         print(error)
 
         raise
-
 
 if __name__ == "__main__":
     main()

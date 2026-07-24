@@ -20,19 +20,11 @@ class KnowledgeAgent(BaseAgent):
     Agente encargado de responder consultas documentales.
     """
 
-    def __init__(
-        self,
-        provider: str | None = None,
-        model: str | None = None,
-        k: int = 4,
-    ):
+    def __init__(self, rag_tool: RAGTool):
         super().__init__("Knowledge Agent")
-
-        self.rag_tool = RAGTool(
-            provider=provider,
-            model=model,
-            k=k,
-        )
+        
+        print("[KnowledgeAgent] Inicializando LLM...")
+        self.rag_tool = rag_tool
 
     def invoke(self, state: AgentState) -> AgentState:
         """

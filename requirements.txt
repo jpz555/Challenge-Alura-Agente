@@ -34,3 +34,8 @@ langchain-groq
 
 langgraph>=0.2.0
 ipython>=8.0.0
+
+# Modelos de optimización
+gurobipy
+openpyxl
+pandas

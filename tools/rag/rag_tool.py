@@ -30,7 +30,10 @@ class RAGTool():
             k=k
         )
         
-        print(self.chain.llm)
+        # print(self.chain.llm)
+        
+    def retrieve(self, question: str):
+        return self.chain.retrieve(question)    
 
     def invoke(self, state: AgentState) -> AgentState:
         """

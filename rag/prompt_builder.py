@@ -11,7 +11,6 @@ Versión:
     2.0.0
 =========================================================
 """
-
 from typing import List
 from rag.schemas import RagResponse
 from langchain_core.documents import Document
@@ -134,13 +133,14 @@ class PromptBuilder:
                 f"\n{'=' * 70}\n"
                 f"FUENTE {i}\n"
                 f"{'=' * 70}\n"
-                f"Código: {metadata['document_code']}\n"
-                f"Título: {metadata['document_title']}\n"
-                f"Versión: {metadata['document_version']}\n"
-                f"Estado: {metadata['document_status']}\n"
-                f"Categoría: {metadata['category']}\n"
-                f"Sección: {metadata['section_path']}\n\n"
-                f"Chunk UUID: {metadata['chunk_uuid']}\n\n"
+                f"Código: {metadata.get('document_code', 'N/A')}\n"
+                f"Título: {metadata.get('document_title', metadata.get('source_file', 'N/A'))}\n"
+                f"Versión: {metadata.get('document_version', 'N/A')}\n"
+                f"Estado: {metadata.get('document_status', 'N/A')}\n"
+                f"Categoría: {metadata.get('category', 'N/A')}\n"
+                f"Sección: {metadata.get('section_path', 'N/A')}\n"
+                f"Archivo: {metadata.get('source_file', 'N/A')}\n\n"
+                f"Chunk UUID: {metadata.get('chunk_uuid', 'N/A')}\n\n"
                 f"Contenido:\n"
                 f"{doc.page_content.strip()}\n"
             )
@@ -182,17 +182,11 @@ class PromptBuilder:
         
         prompt_value = prompt.invoke(
             {
-
                 "context": context,
-
                 "question": question,
-
             }
-
         )
-        
         return prompt_value
-
         # sources = self._build_sources(documents)
 
         # return PromptContext(
@@ -213,21 +207,14 @@ class PromptBuilder:
         sources = []
 
         for doc in documents:
-
             metadata = doc.metadata
-
             source = Source(
-
                 document_code=metadata["document_code"],
-
                 document_title=metadata["document_title"],
-
                 section=metadata["section_path"],
-
                 chunk_uuid=metadata["chunk_uuid"]
 
             )
-
             sources.append(source)
 
         return sources

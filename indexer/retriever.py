@@ -46,44 +46,53 @@ class KnowledgeRetriever:
         -------
         List[Document]
         """
+        semantic_docs = self.retriever.invoke(query)
+        # Búsqueda de datos corporativos (Excel)
+        data_docs = self.vector_store.similarity_search(
+            query=query,
+            k=10,
+            filter={"category": "data"}
+        )
+        # Unir resultados
+        documents = semantic_docs + data_docs
 
-        return self.retriever.invoke(query)
+        return documents
 
     # =====================================================
     # MOSTRAR RESULTADOS
     # =====================================================
 
-    @staticmethod
-    def print_results(documents: List[Document]):
+    # @staticmethod
+    # def print_results(documents: List[Document]):
 
-        print("\n")
+    #     print("\n")
 
-        print("=" * 80)
+    #     print("=" * 80)
 
-        print(f"Resultados encontrados: {len(documents)}")
+    #     print(f"Resultados encontrados: {len(documents)}")
 
-        print("=" * 80)
+    #     print("=" * 80)
 
-        for i, doc in enumerate(documents, start=1):
+    #     for i, doc in enumerate(documents, start=1):
 
-            print(f"\nResultado {i}")
+    #         print(f"\nResultado {i}")
 
-            print("-" * 80)
+    #         print("-" * 80)
 
-            print(f"Código      : {doc.metadata['document_code']}")
+    #         print(f"Código      : {doc.metadata['document_code']}")
 
-            print(f"Título      : {doc.metadata['document_title']}")
+    #         print(f"Título      : {doc.metadata['document_title']}")
 
-            print(f"Categoría   : {doc.metadata['category']}")
+    #         print(f"Categoría   : {doc.metadata['category']}")
 
-            print(f"Sección     : {doc.metadata['section_path']}")
+    #         print(f"Sección     : {doc.metadata['section_path']}")
 
-            print(f"Chunk ID    : {doc.metadata['chunk_id']}")
+    #         print(f"Chunk ID    : {doc.metadata['chunk_id']}")
 
-            print(f"Chunk UUID  : {doc.metadata['chunk_uuid']}")
+    #         print(f"Chunk UUID  : {doc.metadata['chunk_uuid']}")
 
-            print("\nContenido\n")
+    #         print("\nContenido\n")
 
-            print(doc.page_content[:500])
+    #         print(doc.page_content[:500])
 
-            print("\n" + "=" * 80)
+    #         print("\n" + "=" * 80)

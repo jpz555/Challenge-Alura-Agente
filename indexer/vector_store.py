@@ -189,3 +189,13 @@ class VectorStore:
         except Exception:
 
             print("No existe ninguna colección.")
+            
+    def similarity_search(self, query: str,k: int = 4, filter: dict | None = None) -> List[Document]:
+        if self.db is None:
+            self.load()
+
+        return self.db.similarity_search(
+            query=query,
+            k=k,
+            filter=filter
+        )

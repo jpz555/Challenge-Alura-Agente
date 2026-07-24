@@ -24,11 +24,9 @@ class SupervisorRouter:
                     "system",
                     """
                     Eres el Supervisor de un sistema multiagente logístico.
-
                     Clasifica la consulta únicamente en una de estas categorías:
-                    
                     Clasificaciones:
-
+                    
                     knowledge
                     - Preguntas sobre documentos corporativos.
                     - Políticas.

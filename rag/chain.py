@@ -54,7 +54,7 @@ class RagChain:
             self.retriever = KnowledgeRetriever(vector_store=self.vector_store, k=k)
             self.prompt_builder = PromptBuilder()
             self.llm = ModelFactory.create(provider=provider,model=model)
-
+                
             logger.info("RagChain inicializado correctamente.")
 
         except Exception as e:
@@ -62,7 +62,9 @@ class RagChain:
             raise RuntimeError(
                 "No fue posible inicializar el flujo RAG."
             ) from e
-
+    
+    def retrieve(self, question: str):
+        return self.retriever.search(question)
     def invoke(self, question: str) -> RagResponse:
         """
         Ejecuta el flujo completo del RAG.

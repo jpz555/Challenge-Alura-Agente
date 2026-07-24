@@ -1,71 +1,85 @@
 """
-Routing Tool.
+Funciones Tool para Routing.
 """
-
-
 
 from langchain_core.tools import tool
 
-from tools.base.base_tool import BaseTool
+from tools.routing.routing_engine import RoutingEngine
 
 
-class RoutingTool(BaseTool):
+@tool
+def optimize_routes_tool(problem: str, context: str) -> dict:
+    """
+    Optimiza las rutas de distribución.
 
-    name = "Routing Tool"
+    Úsala SOLO cuando el usuario solicite:
+    - Optimizar rutas de entrega.
+    - Encontrar la mejor ruta para distribuir pedidos.
+    - Minimizar la distancia recorrida.
+    - Reducir el costo de transporte mediante optimización de rutas.
+    - Resolver un problema de ruteo de vehículos (VRP).
 
-    description = ("Herramientas para optimización de rutas de transporte.")
+    NO la uses para:
+    - Consultar tiempos estimados de entrega.
+    - Calcular costos de transporte.
+    - Consultar inventarios.
+    - Programar recursos.
+    """
 
-    # ==========================================================
-    # MODELOS
-    # ==========================================================
-
-    def optimize_routes(self, problem: dict):
-
-        """
-        Aquí irá la lógica para decidir
-        qué modelo matemático utilizar.
-        """
-
-        raise NotImplementedError
-
-    def estimate_delivery_time(self, problem: dict):
-
-        raise NotImplementedError
-
-    def calculate_route_cost(self, problem: dict):
-
-        raise NotImplementedError
-
-    # ==========================================================
-    # TOOLS
-    # ==========================================================
-
-    @tool
-    def optimize_routes_tool(problem: dict):
-        """
-        Optimiza rutas de distribución.
-        """
-        pass
-
-    @tool
-    def estimate_delivery_time_tool(problem: dict):
-        """
-        Estima tiempos de entrega.
-        """
-        pass
-
-    @tool
-    def calculate_route_cost_tool(problem: dict):
-        """
-        Calcula el costo de una ruta.
-        """
-        pass
+    print("\n========== TOOL EJECUTADA ==========")
+    print("optimize_routes_tool")
+    print("Problema:", problem)
     
+    engine = RoutingEngine()
+    
+    result_problem = engine.optimize_routes(problem=problem, context=context)
 
-    def get_tools(self):
+    return result_problem
 
-        return [
-            self.optimize_routes_tool,
-            self.estimate_delivery_time_tool,
-            self.calculate_route_cost_tool,
-        ]
+
+@tool
+def estimate_delivery_time_tool(problem: str) -> str:
+    """
+    Estima el tiempo de entrega de una ruta o pedido.
+
+    Úsala SOLO cuando el usuario pregunte por:
+    - Tiempo estimado de llegada.
+    - Tiempo de entrega.
+    - Duración aproximada de una ruta.
+    - ETA de un vehículo.
+
+    NO la uses para:
+    - Optimizar rutas.
+    - Calcular costos.
+    - Consultar inventarios.
+    """
+
+    print("\n========== TOOL EJECUTADA ==========")
+    print("estimate_delivery_time_tool")
+    print("Problema:", problem)
+
+    return f"Tiempo estimado calculado para: {problem}"
+
+
+@tool
+def calculate_route_cost_tool(problem: str) -> str:
+    """
+    Calcula el costo asociado a una ruta de transporte.
+
+    Úsala SOLO cuando el usuario pregunte por:
+    - Costo de una ruta.
+    - Costo de transporte.
+    - Gasto de distribución.
+    - Comparación de costos logísticos.
+
+    NO la uses para:
+    - Optimizar rutas.
+    - Estimar tiempos.
+    - Consultar inventarios.
+    """
+
+    print("\n========== TOOL EJECUTADA ==========")
+    print("calculate_route_cost_tool")
+    print("Problema:", problem)
+
+    return f"Costo de ruta calculado para: {problem}"

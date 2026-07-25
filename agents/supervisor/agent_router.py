@@ -14,9 +14,9 @@ class SupervisorRouter:
     Clasifica la intención del usuario.
     """
 
-    def __init__(self):
+    def __init__(self, model: ModelFactory):
 
-        self.llm = ModelFactory.create(provider="groq")
+        self.llm = self.llm = model
 
         self.prompt = ChatPromptTemplate.from_messages(
             [

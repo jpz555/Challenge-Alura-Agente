@@ -10,6 +10,7 @@ y determinar qué agente debe atenderla.
 from agents.base.base_agent import BaseAgent
 from agents.base.state import AgentState
 from agents.supervisor.agent_router import SupervisorRouter
+from rag.models import ModelFactory
 
 class SupervisorAgent(BaseAgent):
     """
@@ -19,10 +20,10 @@ class SupervisorAgent(BaseAgent):
     qué agente debe ejecutarse.
     """
 
-    def __init__(self):
+    def __init__(self, model: ModelFactory):
         super().__init__(name="Supervisor")
 
-        self.router = SupervisorRouter()
+        self.router = SupervisorRouter(model)
 
     def invoke(self, state: AgentState) -> AgentState:
 

@@ -10,16 +10,20 @@ from agents.supervisor.supervisor_agent import SupervisorAgent
 from agents.knowledge.knowledge_agent import KnowledgeAgent
 from agents.analytics.analytics_agent import AnalyticsAgent
 from agents.decision_support.decision_support_agent import DecisionSupportAgent
+from rag.models import ModelFactory
 from tools.rag.rag_tool import RAGTool
 
+
+# modelos llm
+model = ModelFactory.create(provider='groq')
 
 # Agentes
 # componentes compartidos
 rag_tool = RAGTool()
-supervisor = SupervisorAgent()
+supervisor = SupervisorAgent(model=model)
 knowledge = KnowledgeAgent(rag_tool=rag_tool)
 analytics = AnalyticsAgent(rag_tool=rag_tool)
-decision_support = DecisionSupportAgent(rag_tool=rag_tool)
+decision_support = DecisionSupportAgent(rag_tool=rag_tool, model=model)
 
 def supervisor_node(state: AgentState) -> AgentState:
     """

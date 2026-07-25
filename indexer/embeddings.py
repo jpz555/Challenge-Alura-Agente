@@ -34,11 +34,7 @@ class EmbeddingModel:
 
         self.model_name = model_name
 
-
-    # =====================================================
     # MODELO SENTENCE TRANSFORMERS
-    # =====================================================
-
     @property
     def sentence_model(self) -> SentenceTransformer:
         if EmbeddingModel.sentence_model is None:

@@ -60,12 +60,12 @@ from indexer.retriever import KnowledgeRetriever
 
 
 class DecisionSupportAgent(BaseAgent):  # ← sigue heredando de BaseAgent, sin cambios
-    def __init__(self, rag_tool: RAGTool):
+    def __init__(self, rag_tool: RAGTool, model: ModelFactory):
         super().__init__("Decision Support Agent")
 
         # Modelo (solo se usa para clasificar, no para tool-calling nativo)
         print("[DecisionSupportAgent] Inicializando LLM...")
-        self.llm = ModelFactory.create(provider="groq")
+        self.llm = model #ModelFactory.create(provider="groq")
     
         # contexto
         self.rag_tool = rag_tool

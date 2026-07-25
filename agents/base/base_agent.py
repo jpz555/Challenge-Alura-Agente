@@ -9,7 +9,9 @@ from abc import ABC, abstractmethod
 
 from agents.base.state import AgentState
 from prompts.responses.responses import (INVENTORY_RESPONSE_PROMPT, ROUTING_RESPONSE_PROMPT, SCHEDULING_RESPONSE_PROMPT)
-
+from agents.formatters.routing_formatter import RoutingFormatter
+from agents.formatters.inventory_formatter import InventoryFormatter
+from agents.formatters.scheduling_formatter import SchedulingFormatter
 
 class BaseAgent(ABC):
     """
@@ -18,6 +20,11 @@ class BaseAgent(ABC):
 
     def __init__(self, name: str):
         self.name = name
+
+        # Formateadores
+        self.routing_formatter = RoutingFormatter()
+        self.inventory_formatter = InventoryFormatter()
+        self.scheduling_formatter = SchedulingFormatter()
     
     def _format_tool_result(self, tool_name: str, tool_result: dict) -> str:
         """
@@ -25,202 +32,18 @@ class BaseAgent(ABC):
         resumen estructurado para el LLM.
         """
         if tool_name in  ("optimize_routes", "estimate_delivery_time","calculate_route_cost",):
-            return self._format_routing_result(tool_result)
+            return self.routing_formatter.format(tool_name, tool_result)
         
         elif tool_name in ("check_stock", "forecast_demand","reorder_point",):
-            return self._format_inventory_result(tool_result)
+            return self.inventory_formatter(tool_name, tool_result)
 
         elif tool_name in ("optimize_schedule", "assign_resource","check_availability",):
-            return self._format_scheduling_result(tool_result)
+            return self.scheduling_formatter(tool_name, tool_result)
 
         return str(tool_result)
     
-    def _format_routing_result(self,tool_result: dict) -> str:
-        """
-        Construye un resumen técnico del resultado de la optimización
-        de rutas. Este resumen será utilizado por el LLM
-        únicamente para redactar una respuesta ejecutiva.
-        """
-        solution = tool_result.get("solution", {})
-        selected_model = tool_result.get("selected_model", {})
-
-        # Datos básicos
-        # -------------------------
-        model_name = selected_model.get("name", "No disponible")
-        status = solution.get("status", "No disponible")
-        objective = solution.get("objective_value")
-        runtime = solution.get("execution_time")
-        gap = solution.get("gap")
-        vehicles = solution.get("vehicles_used", [])
-        routes = solution.get("routes", [])
-        # -------------------------
-        # Interpretación del estado
-        # -------------------------
-        if status == "optimal":
-            status_text = ("El solver encontró una solución óptima.")
-            # recommendation = ("La solución puede utilizarse operacionalmente.")
-
-        elif status == "time_limit":
-            status_text = (
-                "El solver alcanzó el tiempo máximo configurado "
-                "y encontró una solución factible."
-            )
-            # recommendation = (
-            #     "Si se requiere una solución con menor GAP, "
-            #     "puede incrementarse el tiempo máximo de optimización."
-            #)
-        elif status == "infeasible":
-            status_text = (
-                "No fue posible encontrar una solución factible."
-            )
-            recommendation = (
-                "Revise las restricciones y los datos del problema."
-            )
-        else:
-            status_text = (
-                f"El solver finalizó con estado '{status}'."
-            )
-            recommendation = (
-                "Revise el resultado del proceso de optimización."
-            )
-
-        # -------------------------
-        # Interpretación del GAP
-        # -------------------------
-
-        if gap is None:
-            # gap_text = "No disponible."
-            gap_value = "No disponible"
-            technical_conclusion = ("No fue posible calcular el GAP de optimalidad.")
-            recommendation = ("Revise el resultado generado por el solver.")
+    
             
-        else:
-            gap_value = f"{gap:.2%}"
-             
-            if status == "optimal":
-
-                technical_conclusion = (
-                    "La solución encontrada fue demostrada como óptima."
-                )
-
-                recommendation = (
-                    "La solución puede utilizarse operacionalmente."
-                )
-
-            elif status == "time_limit":
-
-                if gap <= 0.01:
-
-                    technical_conclusion = (
-                        "Se obtuvo una solución factible muy cercana al óptimo."
-                    )
-
-                    recommendation = (
-                        "La solución puede utilizarse, aunque el solver "
-                        "finalizó por límite de tiempo."
-                    )
-
-                elif gap <= 0.05:
-
-                    technical_conclusion = (
-                        "Se obtuvo una solución factible con una diferencia "
-                        "moderada respecto a la mejor cota conocida."
-                    )
-
-                    recommendation = (
-                        "Evaluar si el nivel de calidad obtenido satisface "
-                        "los criterios operativos de la organización."
-                    )
-
-                else:
-
-                    technical_conclusion = (
-                        "El solver no logró demostrar la cercanía de la "
-                        "solución encontrada al óptimo antes de finalizar."
-                    )
-
-                    recommendation = (
-                        "Si se requiere reducir el GAP, puede incrementarse "
-                        "el tiempo máximo de optimización para permitir que "
-                        "el solver continúe la búsqueda."
-                    )
-
-            elif status == "infeasible":
-
-                technical_conclusion = (
-                    "El modelo no encontró una solución factible."
-                )
-
-                recommendation = (
-                    "Revisar las restricciones, parámetros y datos de entrada."
-                )
-
-            else:
-
-                technical_conclusion = (
-                    "No fue posible generar una interpretación automática "
-                    "del resultado."
-                )
-
-                recommendation = (
-                    "Revisar el estado reportado por el solver."
-                )
-
-        # ==========================================================
-        # Indicadores
-        # ==========================================================
-
-        objective_text = (
-            f"{objective:,.2f}"
-            if objective is not None
-            else "No disponible"
-        )
-
-        runtime_text = (
-            f"{runtime:.2f} segundos"
-            if runtime is not None
-            else "No disponible"
-        )
-
-        # ==========================================================
-        # Resumen técnico
-        # ==========================================================
-
-        return f"""
-                RESUMEN TÉCNICO
-
-                MODELO MATEMÁTICO
-                {model_name}
-
-                ESTADO DEL SOLVER
-                {status_text}
-
-                INDICADORES
-
-                - Modelo: {model_name}
-                - Estado: {status}
-                - Valor de la función objetivo: {objective_text}
-                - Tiempo de ejecución: {runtime_text}
-                - GAP de optimalidad: {gap_value}
-                - Vehículos utilizados: {len(vehicles)}
-                - Rutas generadas: {len(routes)}
-
-                CONCLUSIÓN TÉCNICA
-
-                {technical_conclusion}
-
-                RECOMENDACIÓN TÉCNICA
-
-                {recommendation}
-                """
-                          
-    # Provisionales
-    def _format_inventory_result(self, tool_result: dict) -> str:
-        return str(tool_result)
-    
-    def _format_scheduling_result(self, tool_result: dict,) -> str:
-        return str(tool_result)
-
     def _interpret_result(self, user_query: str, tool_name:str, tool_result: dict,context: str) -> str:
         formatted_result = self._format_tool_result(tool_name, tool_result)
         

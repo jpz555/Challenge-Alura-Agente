@@ -90,3 +90,14 @@ class CorporateDataLoader:
             "vehicle_variable_cost": vehicle_variable_cost,
         }
         
+    # RESUMEN PARA ANALYTICS
+    # =====================================================
+    def load_summary(self) -> dict:
+        data = self.load()
+        return {
+            "total_depots": len(data["depots"]),
+            "total_customers": len(data["customers"]),
+            "total_vehicles": len(data["vehicles"]),
+            "total_demand": sum(data["demands"].values()),
+            "vehicle_capacity": data["vehicle_capacity"],
+        }

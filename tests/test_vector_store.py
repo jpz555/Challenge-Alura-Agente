@@ -18,6 +18,13 @@ def main():
     loader = ChunkLoader(CHUNKS_OUTPUT_DIR)
 
     documents = loader.load()
+    
+    for doc in documents:
+        if doc.metadata["document_code"] == "CORP-001":
+            if "CD-01" in doc.page_content:
+                print("="*80)
+                print(doc.metadata)
+                print(doc.page_content)
 
     print(f"\nDocumentos cargados: {len(documents)}")
 
@@ -39,6 +46,12 @@ def main():
     )
 
     db = vector_store.create(documents)
+    
+    print("Query")
+    docs = vector_store.similarity_search(
+    query="¿Dónde está ubicado el CD-01?",
+        k=10
+    )
 
     vector_store.info()
 

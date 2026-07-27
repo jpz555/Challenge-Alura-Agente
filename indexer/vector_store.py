@@ -151,17 +151,11 @@ class VectorStore:
     # =====================================================
 
     def info(self):
-
         print("\n")
-
         print("=" * 60)
-
         print("VECTOR STORE")
-
         print("=" * 60)
-
         print(f"Colección : {self.COLLECTION_NAME}")
-
         print(f"Directorio: {self.persist_directory}")
 
         if self.db is not None:
@@ -190,12 +184,25 @@ class VectorStore:
 
             print("No existe ninguna colección.")
             
+    
     def similarity_search(self, query: str,k: int = 4, filter: dict | None = None) -> List[Document]:
         if self.db is None:
-            self.load()
+                self.load()
 
-        return self.db.similarity_search(
-            query=query,
-            k=k,
-            filter=filter
-        )
+        docs_with_scores = self.db.similarity_search_with_score(
+             query=query,
+             k=k,
+             filter=filter
+         )
+        # print("\n========== DEBUG SIMILARITY ==========")
+        documents = []
+
+        for doc, score in docs_with_scores:
+            # print(f"Score: {score}")
+            # print(f"Chunk: {doc.metadata['chunk_id']}")
+            # print(f"Documento: {doc.metadata['document_code']}")
+            # print(f"Sección: {doc.metadata['section_path']}")
+            # print("-" * 80)
+            documents.append(doc)
+
+        return documents

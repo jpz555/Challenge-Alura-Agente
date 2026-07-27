@@ -16,7 +16,6 @@ class GraphRouter:
     """
     Router del grafo.
     """
-
     ROUTES = {
         "knowledge": "knowledge",
         "analytics": "analytics",

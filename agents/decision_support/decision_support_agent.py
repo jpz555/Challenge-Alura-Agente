@@ -101,7 +101,7 @@ class DecisionSupportAgent(BaseAgent):  # ← sigue heredando de BaseAgent, sin 
         # decision = self.dispatcher.classify(state.user_query)
 
         # Recuperar contexto documental
-        documents = self.rag_tool.retrieve(state.user_query)
+        documents = self.rag_tool.retrieve(state.user_query, include_data=True)
         context = "\n\n".join(doc.page_content for doc in documents)
         
         # print("\n========== DOCUMENTOS RECUPERADOS ==========")

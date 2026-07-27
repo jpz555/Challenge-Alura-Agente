@@ -63,8 +63,8 @@ class RagChain:
                 "No fue posible inicializar el flujo RAG."
             ) from e
     
-    def retrieve(self, question: str):
-        return self.retriever.search(question)
+    def retrieve(self, question: str, include_data: bool = False):
+        return self.retriever.search(question, include_data=include_data)
     def invoke(self, question: str) -> RagResponse:
         """
         Ejecuta el flujo completo del RAG.
@@ -105,6 +105,15 @@ class RagChain:
                 question=question,
                 documents=documents,
             )
+            # print("\n================ DOCUMENTOS RECUPERADOS ================\n")
+
+            # for i, doc in enumerate(documents, 1):
+            #     print(f"\n========== DOCUMENTO {i} ==========")
+            #     print("Metadata:")
+            #     print(doc.metadata)
+            #     print("\nContenido:")
+            #     print(doc.page_content)
+            #     print("\n" + "=" * 80)
 
             # --------------------------------------------------
             # Inferencia
@@ -121,10 +130,10 @@ class RagChain:
             
             # print("\n========== CONTENT ==========")
 
-            try:
-                print(response.content)
-            except AttributeError:
-                print(response)
+            # try:
+            #     print(response.content)
+            # except AttributeError:
+            #     print(response)
             return self.response_parser.parse(response)
 
         except Exception as e:

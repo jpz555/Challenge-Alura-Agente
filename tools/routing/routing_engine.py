@@ -30,17 +30,13 @@ class RoutingEngine:
     def __init__(self):
 
         self.problem_analyzer = ProblemAnalyzer()
-
         self.rule_engine = RuleEngine()
-
         self.routing_solver = RoutingSolver()
-
         self.response_formatter = ResponseFormatter()
 
     ####################################################################
     # PUBLIC API
     ####################################################################
-
     def optimize_routes(self,problem: str,context: str) -> dict:
 
         analysis = self.problem_analyzer.analyze(problem, context)
@@ -51,7 +47,7 @@ class RoutingEngine:
         selected_model = self.rule_engine.select_model(analysis)
         
         print(selected_model)
-        
+    
         loader = CorporateDataLoader(Path("documents/data/corporate_data.xlsx"))
         
         routing_data = loader.load()
@@ -77,18 +73,24 @@ class RoutingEngine:
     ####################################################################
 
     def estimate_delivery_time(self,problem: str,context: str,) -> dict:
+        """
+        Estima el tiempo de entrega para una ruta.
+        """
+        
+        # Analiza la solicitud
+        analysis = self.problem_analyzer.estimate_delivery_time(problem=problem,context=context)
+       
+        # Carga los datos corporativos
+        loader = CorporateDataLoader(Path("documents/data/corporate_data.xlsx"))
+        routing_data = loader.load()
+        
+        # Se agregan al análisis para mantener
+        # el mismo patrón de optimize_routes()
+        analysis["routing_data"] = routing_data
 
-        analysis = self.problem_analyzer.analyze(
-            problem,
-            context,
-        )
+        # Formatea la respuesta
+        return self.response_formatter.format_delivery_time(analysis)
 
-        return self.routing_solver.estimate_delivery_time(
-            problem=problem,
-            context=context,
-            analysis=analysis,
-
-        )
 
     ####################################################################
     # ROUTE COST

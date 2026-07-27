@@ -239,3 +239,18 @@ class RuleEngine:
             "rules_not_triggered": not_triggered
 
         }
+        
+    # estimate delivery time
+    def extract_route(self,problem: str, context: str):
+        """
+        Extrae la ruta desde el contexto.
+        """
+        # TODO:
+        # Aquí reutilizaremos el mismo mecanismo que ya usa
+        # optimize_routes() para obtener los datos.
+
+        return {
+            "origin": "Barranquilla",
+            "destination": "Cartagena",
+            "travel_time": 3.8
+        } 

@@ -85,93 +85,10 @@ class ProblemAnalyzer:
     # ===============================================================
 
     def _extract_features(self, text: str) -> dict:
-
-        # return {
-
-        #     "multiple_depots": any(
-        #         x in text
-        #         for x in [
-        #             "centro de distribución",
-        #             "cd-",
-        #             "multi depósito",
-        #             "multiple depot"
-        #         ]
-        #     ),
-
-        #     "heterogeneous_fleet": any(
-        #         x in text
-        #         for x in [
-        #             "flota heterogénea",
-        #             "t12",
-        #             "r8",
-        #             "tr30",
-        #             "f5"
-        #         ]
-        #     ),
-
-        #     "time_windows": any(
-        #         x in text
-        #         for x in [
-        #             "ventana de tiempo",
-        #             "horario",
-        #             "08:00",
-        #             "18:00"
-        #         ]
-        #     ),
-
-        #     "priority_customers": any(
-        #         x in text
-        #         for x in [
-        #             "hospital",
-        #             "farmacia",
-        #             "cliente prioritario"
-        #         ]
-        #     ),
-
-        #     "cold_chain": any(
-        #         x in text
-        #         for x in [
-        #             "cadena de frío",
-        #             "refrigerado"
-        #         ]
-        #     ),
-
-        #     "dynamic_requests": any(
-        #         x in text
-        #         for x in [
-        #             "urgente",
-        #             "nuevo pedido",
-        #             "reoptimizar",
-        #             "dinámico"
-        #         ]
-        #     ),
-
-        #     "green_optimization": any(
-        #         x in text
-        #         for x in [
-        #             "co2",
-        #             "emisiones",
-        #             "combustible",
-        #             "verde"
-        #         ]
-        #     ),
-
-        #     "split_deliveries": any(
-        #         x in text
-        #         for x in [
-        #             "dividir entregas",
-        #             "split delivery",
-        #             "entrega parcial"
-        #         ]
-        #     )
-        # }
-        
         return {
-
         # ==========================================================
         # MULTI DEPOT
         # ==========================================================
-
         "multiple_depots": any(
             keyword in text
             for keyword in [
@@ -184,20 +101,13 @@ class ProblemAnalyzer:
                 "cd ",
                 "bodega",
                 "bodegas"
-
             ]
         ),
-
-        # ==========================================================
         # HETEROGENEOUS FLEET
-        # ==========================================================
-
         "heterogeneous_fleet": any(
             keyword in text
             for keyword in [
-
                 "flota",
-
                 "t12",
                 "r8",
                 "tr30",
@@ -221,60 +131,40 @@ class ProblemAnalyzer:
             ]
         ),
 
-        # ==========================================================
         # TIME WINDOWS
-        # ==========================================================
-
         "time_windows": any(
             keyword in text
             for keyword in [
-
                 "ventana de tiempo",
                 "ventanas de tiempo",
-
                 "horario",
-
                 "08:00",
                 "18:00",
-
                 "hora de entrega"
-
             ]
         ),
 
-        # ==========================================================
         # PRIORITY CUSTOMERS
-        # ==========================================================
-
         "priority_customers": any(
             keyword in text
             for keyword in [
-
                 "hospital",
                 "hospitales",
-
                 "farmacia",
                 "farmacias",
-
                 "cliente prioritario",
                 "clientes prioritarios"
-
             ]
         ),
 
-        # ==========================================================
         # COLD CHAIN
-        # ==========================================================
-
         "cold_chain": any(
             keyword in text
             for keyword in [
-
                 "cadena de frío",
                 "refrigerado",
                 "refrigerados",
                 "temperatura controlada"
-
             ]
         ),
 
@@ -396,11 +286,8 @@ class ProblemAnalyzer:
         }
 
         for keyword, vehicle in vehicle_catalog.items():
-
             if keyword in text:
-
                 if vehicle not in vehicles:
-
                     vehicles.append(vehicle)
 
         # ==========================================================
@@ -443,7 +330,6 @@ class ProblemAnalyzer:
     # ===============================================================
     # BUSINESS RULES
     # ===============================================================
-
     def _extract_business_rules(self, text: str) -> dict:
 
         rules = {}
@@ -460,6 +346,33 @@ class ProblemAnalyzer:
             rules["service_level"] = 0.97
 
         return rules
+    
+    def estimate_delivery_time(self,problem: str, context: str) -> dict:
+        """
+        Estima el tiempo de entrega utilizando la información
+        disponible en el contexto documental.
+        """
+        route = self.rule_engine.extract_route(problem=problem, context=context)
+
+        if route is None:
+            return {
+                "status": "error",
+                "message": "No fue posible identificar el origen y destino de la ruta."
+            }
+
+        origin = route["origin"]
+        destination = route["destination"]
+
+        travel_time = route["travel_time"]
+
+        return {
+            "status": "success",
+            "model": "Delivery Time Estimation",
+            "origin": origin,
+            "destination": destination,
+            "estimated_time": travel_time,
+            "unit": "horas"
+        }
     
     # deprecated function 
     # def _extract_routing_data(self,context: str) -> dict:

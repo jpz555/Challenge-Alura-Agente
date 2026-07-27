@@ -95,9 +95,7 @@ class ChunkLoader:
             }
 
             document = Document(
-
                 page_content=chunk["text"],
-
                 metadata=metadata
 
             )

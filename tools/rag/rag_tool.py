@@ -32,8 +32,8 @@ class RAGTool():
         
         # print(self.chain.llm)
         
-    def retrieve(self, question: str):
-        return self.chain.retrieve(question)    
+    def retrieve(self, question: str, include_data: bool = False):
+        return self.chain.retrieve(question, include_data=include_data)    
 
     def invoke(self, state: AgentState) -> AgentState:
         """

@@ -6,6 +6,7 @@ por el módulo document_processor.
 """
 
 from time import perf_counter
+from collections import Counter
 
 from document_processor.config import CHUNKS_OUTPUT_DIR, VECTOR_DB_DIR
 
@@ -86,6 +87,18 @@ def main() -> None:
         print("INDEXACIÓN FINALIZADA")
         print("=" * 80)
         print(f"Tiempo total : {elapsed:.2f} segundos")
+        
+                
+        print("\n===== CATEGORÍAS =====")
+        print(Counter(doc.metadata["category"] for doc in documents))
+
+        print("\n===== PRIMEROS 20 DOCUMENTOS =====")
+        for d in documents[:20]:
+            print(
+                d.metadata["document_code"],
+                d.metadata["category"],
+                d.metadata["source_file"],
+    )
 
     except Exception as error:
 

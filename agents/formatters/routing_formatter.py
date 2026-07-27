@@ -209,3 +209,32 @@ class RoutingFormatter(BaseFormatter):
 
                 {recommendation}
                 """
+    def format_delivery_time(self,result: dict) -> dict:
+
+        if result["status"] == "error":
+            return {
+                "response": result["message"]
+            }
+
+        response = f"""
+                ## Resumen Ejecutivo
+                Se estimó el tiempo de entrega solicitado.
+
+                ## Resultado
+
+                - Ruta: {result["origin"]} → {result["destination"]}
+                - Tiempo estimado: {result["estimated_time"]:.2f} {result["unit"]}
+
+                ## Interpretación
+
+                La estimación corresponde al tiempo esperado de desplazamiento para la ruta consultada.
+
+                ## Recomendación
+
+                Utilice esta información para planificar la operación logística y coordinar la entrega.
+        """
+        return {
+            "status": "success",
+            "response": response.strip(),
+            "technical_summary": result
+        }

@@ -14,49 +14,69 @@ Versión:
 from typing import List
 
 from langchain_core.documents import Document
-
 from indexer.vector_store import VectorStore
+from indexer.reranker import CrossEncoderReranker
+
+import re
 
 
 class KnowledgeRetriever:
     """
     Recupera documentos relevantes desde la base vectorial.
     """
-
     def __init__(self, vector_store: VectorStore, k: int = 4):
 
         self.vector_store = vector_store
         self.k = k
-
+        
         self.retriever = self.vector_store.as_retriever(k=self.k)
-
+        self.reranker = CrossEncoderReranker()
     # =====================================================
     # BÚSQUEDA SEMÁNTICA
     # =====================================================
 
-    def search(self, query: str) -> List[Document]:
+    def search(self, query: str, include_data: bool = False) -> List[Document]:
         """
         Realiza una búsqueda semántica.
-
         Parameters
         ----------
         query : str
-
         Returns
         -------
         List[Document]
         """
-        semantic_docs = self.retriever.invoke(query)
+
+        # semantic_docs = self.retriever.invoke(query)
+        semantic_docs = self.vector_store.similarity_search(
+            query=query,
+            k=20
+        )
+        semantic_docs = self.reranker.rerank(
+            query=query,
+            documents=semantic_docs,
+            top_k=self.k
+        )
+        # print("\n=========== SEMANTIC DOCS ===========")
+
+        # for i, doc in enumerate(semantic_docs, 1):
+        #     print(
+        #         i,
+        #         doc.metadata["document_code"],
+        #         doc.metadata["category"],
+        #         doc.metadata["source_file"]
+        #     )
+
         # Búsqueda de datos corporativos (Excel)
+        if not include_data:
+            return semantic_docs
+        
         data_docs = self.vector_store.similarity_search(
             query=query,
-            k=10,
+            k=self.k,
             filter={"category": "data"}
         )
-        # Unir resultados
-        documents = semantic_docs + data_docs
 
-        return documents
+        return semantic_docs + data_docs
 
     # =====================================================
     # MOSTRAR RESULTADOS

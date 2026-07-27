@@ -14,7 +14,18 @@ documents = parser.read_directory(DOCUMENTS_DIR)
 print(f"\nDocumentos encontrados: {len(documents)}\n")
 
 # Probar únicamente con el primero
-doc = metadata.extract(documents[0])
+# doc = metadata.extract(documents[0])
+
+# Buscar específicamente CORP_001.md
+doc = None
+
+for document in documents:
+    if document["file_name"] == "CORP_001.md":
+        doc = metadata.extract(document)
+        break
+
+if doc is None:
+    raise ValueError("No se encontró CORP_001.md")
 
 chunks = chunker.split(doc)
 
@@ -22,14 +33,14 @@ print(f"Documento: {doc['metadata']['document_code']}")
 print(f"Chunks generados: {len(chunks)}")
 
 for chunk in chunks:
-    print("-" * 60)
-    print(f"Chunk ID: {chunk['chunk_id']}")
-    print(f"Chunk UUID: {chunk['chunk_uuid']}")
-    print(f"Document Code: {chunk['document_code']}")
-    print(f"Document Title: {chunk['document_title']}")
-    print(f"Category: {chunk['category']}")
-    print(f"Metadata: {chunk['metadata']}")
-    print(f"Text (first 100 chars): {chunk['text'][:100]}")
+    print("=" * 80)
+    print(f"Chunk ID      : {chunk['chunk_id']}")
+    print(f"Section Path  : {chunk['section_path']}")
+    print(f"H1            : {chunk['headers']['h1']}")
+    print(f"H2            : {chunk['headers']['h2']}")
+    print(f"H3            : {chunk['headers']['h3']}")
+    print()
+    print(chunk["text"])
 
 # print("\nPrimer chunk\n")
 

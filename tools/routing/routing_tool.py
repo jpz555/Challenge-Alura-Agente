@@ -38,7 +38,7 @@ def optimize_routes_tool(problem: str, context: str) -> dict:
 
 
 @tool
-def estimate_delivery_time_tool(problem: str) -> str:
+def estimate_delivery_time_tool(problem: str, context:str) -> dict:
     """
     Estima el tiempo de entrega de una ruta o pedido.
 
@@ -58,7 +58,12 @@ def estimate_delivery_time_tool(problem: str) -> str:
     print("estimate_delivery_time_tool")
     print("Problema:", problem)
 
-    return f"Tiempo estimado calculado para: {problem}"
+    engine = RoutingEngine()
+
+    result = engine.estimate_delivery_time(problem=problem,context=context)
+    
+    return result
+
 
 
 @tool
@@ -83,3 +88,4 @@ def calculate_route_cost_tool(problem: str) -> str:
     print("Problema:", problem)
 
     return f"Costo de ruta calculado para: {problem}"
+

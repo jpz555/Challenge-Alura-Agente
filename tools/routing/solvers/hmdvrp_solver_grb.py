@@ -16,21 +16,16 @@ No interpreta lenguaje natural.
 """
 
 from __future__ import annotations
-
 from typing import Any
-
 import gurobipy as gp
 from gurobipy import GRB
 
 from tools.base.base_solver import BaseSolver
 
-
 class HMDVRPSolver(BaseSolver):
-
     """
     Solver para HMDVRP.
     """
-
     def __init__(self):
 
         self.model_name = "HMDVRP"
@@ -38,83 +33,52 @@ class HMDVRPSolver(BaseSolver):
     # ============================================================
     # BUILD MODEL
     # ============================================================
-
-    def build_model(
-        self,
-        problem: str,
-        context: str,
-        analysis: dict[str, Any],
-    ) -> gp.Model:
-
+    def build_model(self,problem: str,context: str,analysis: dict[str, Any]) -> gp.Model:
         """
         Construye el modelo matemático.
         """
-
         routing_data = analysis["routing_data"]
-
         self._build_sets(routing_data)
         self._build_parameters(routing_data)
-
         self.model = gp.Model(self.model_name)
-
         self._build_variables()
-
         self._build_objective()
-
         self._build_constraints()
-
         return self.model
 
-    # ============================================================
     # SETS
-    # ============================================================
-
-    def _build_sets(
-        self,
-        routing_data: dict[str, Any],
-    ) -> None:
-
+    def _build_sets(self,routing_data: dict[str, Any]) -> None:
         """
         Construye los conjuntos del modelo.
         """
-
         self.depots = routing_data["depots"]
-
         self.customers = routing_data["customers"]
-
         self.nodes = self.depots + self.customers
-
         self.vehicles = routing_data["vehicles"]
-
-    # ============================================================
+        
     # PARAMETERS
-    # ============================================================
-
-    def _build_parameters(
-        self,
-        routing_data: dict[str, Any],
-    ) -> None:
-
+    def _build_parameters(self,routing_data: dict[str, Any]) -> None:
         """
         Construye todos los parámetros del modelo.
         """
-
         self.distance_matrix = routing_data["distance_matrix"]
-
+        self.travel_time = routing_data.get(
+            "travel_time",
+            self.distance_matrix
+        )
         self.demands = routing_data["demands"]
-
         self.vehicle_capacity = routing_data["vehicle_capacity"]
-
         self.vehicle_fixed_cost = routing_data.get(
             "vehicle_fixed_cost",
             {}
         )
-
+        print(self.vehicle_fixed_cost)
+        
         self.vehicle_variable_cost = routing_data.get(
             "vehicle_variable_cost",
             {}
         )
-
+        print(self.vehicle_variable_cost)
         self.max_route_time = routing_data.get(
             "max_route_time",
             None
@@ -128,130 +92,92 @@ class HMDVRPSolver(BaseSolver):
     # ============================================================
     # VARIABLES
     # ============================================================
-
     def _build_variables(self) -> None:
-
         """
         Variables de decisión.
         """
-
         #
         # x[i,j,k]
         # El vehículo k viaja de i hacia j
         #
+        self.valid_arcs = [
+            (i, j, k)
+            for k in self.vehicles
+            for i in self.nodes
+            for j in self.nodes
+            if i != j
+        ]
 
         self.x = self.model.addVars(
-
-            self.nodes,
-
-            self.nodes,
-
-            self.vehicles,
-
+            self.valid_arcs,
             vtype=GRB.BINARY,
-
             name="x"
-
         )
 
         #
         # y[k]
         # Vehículo utilizado
         #
-
         self.y = self.model.addVars(
-
             self.vehicles,
-
             vtype=GRB.BINARY,
-
             name="y"
-
         )
-
-        #
+        
         # u[i]
         # Variables MTZ para eliminar subtours
         #
-
         self.u = self.model.addVars(
-
             self.customers,
-
-            lb=0,
-
+            lb=1,
             ub=len(self.customers),
-
             vtype=GRB.CONTINUOUS,
-
             name="u"
-
         )
+        
 
     # ============================================================
     # OBJECTIVE
     # ============================================================
-
     def _build_objective(self) -> None:
-
         """
         Minimizar costo total.
         """
-
         transport_cost = gp.quicksum(
-
             self.distance_matrix[i][j]
-
+            * self.vehicle_variable_cost.get(k, 1)
             * self.x[i, j, k]
-
-            for i in self.nodes
-
-            for j in self.nodes
-
-            if i != j
-
-            for k in self.vehicles
-
+            for (i, j, k) in self.valid_arcs
         )
-
+        
         fixed_cost = gp.quicksum(
-
             self.vehicle_fixed_cost.get(k, 0)
-
             * self.y[k]
-
             for k in self.vehicles
-
         )
 
         self.model.setObjective(
-
             transport_cost + fixed_cost,
-
             GRB.MINIMIZE
-
         )
-        
+            
     # ============================================================
     # CONSTRAINTS
     # ============================================================
-
+    
     def _build_constraints(self) -> None:
         """
         Construye todas las restricciones del modelo.
         """
-
         self._customer_visit_constraint()
-
         self._flow_conservation_constraint()
-
         self._vehicle_capacity_constraint()
-
         self._depot_departure_constraint()
-
         self._depot_return_constraint()
-
+        self._vehicle_activation_constraint()
+        self._maximum_route_time_constraint()
         self._subtour_elimination_constraint()
+
 
     # ============================================================
     # CUSTOMER VISIT
@@ -267,20 +193,16 @@ class HMDVRPSolver(BaseSolver):
             self.model.addConstr(
 
                 gp.quicksum(
-
-                    self.x[i, customer, k]
-
-                    for i in self.nodes
-
-                    if i != customer
-
-                    for k in self.vehicles
-
-                ) == 1,
+                    self.x[i, j, k]
+                    for (i, j, k) in self.valid_arcs
+                    if j == customer
+                )
+                == 1,
 
                 name=f"visit_{customer}"
 
             )
+
 
     # ============================================================
     # FLOW CONSERVATION
@@ -298,21 +220,21 @@ class HMDVRPSolver(BaseSolver):
 
                 incoming = gp.quicksum(
 
-                    self.x[i, customer, vehicle]
+                    self.x[i, j, vehicle]
 
-                    for i in self.nodes
+                    for (i, j, k) in self.valid_arcs
 
-                    if i != customer
+                    if k == vehicle and j == customer
 
                 )
 
                 outgoing = gp.quicksum(
 
-                    self.x[customer, j, vehicle]
+                    self.x[i, j, vehicle]
 
-                    for j in self.nodes
+                    for (i, j, k) in self.valid_arcs
 
-                    if j != customer
+                    if k == vehicle and i == customer
 
                 )
 
@@ -323,6 +245,7 @@ class HMDVRPSolver(BaseSolver):
                     name=f"flow_{vehicle}_{customer}"
 
                 )
+
 
     # ============================================================
     # VEHICLE CAPACITY
@@ -345,11 +268,11 @@ class HMDVRPSolver(BaseSolver):
 
                     gp.quicksum(
 
-                        self.x[i, customer, vehicle]
+                        self.x[i, j, vehicle]
 
-                        for i in self.nodes
+                        for (i, j, k) in self.valid_arcs
 
-                        if i != customer
+                        if k == vehicle and j == customer
 
                     )
 
@@ -364,6 +287,7 @@ class HMDVRPSolver(BaseSolver):
                 name=f"capacity_{vehicle}"
 
             )
+
 
     # ============================================================
     # DEPOT DEPARTURE
@@ -380,21 +304,26 @@ class HMDVRPSolver(BaseSolver):
 
                 gp.quicksum(
 
-                    self.x[d, j, vehicle]
+                    self.x[i, j, vehicle]
 
-                    for d in self.depots
+                    for (i, j, k) in self.valid_arcs
 
-                    for j in self.customers
+                    if (
+                        k == vehicle
+                        and i in self.depots
+                        and j in self.customers
+                    )
 
                 )
 
-                <=
+                ==
 
                 self.y[vehicle],
 
                 name=f"departure_{vehicle}"
 
             )
+
 
     # ============================================================
     # DEPOT RETURN
@@ -411,21 +340,80 @@ class HMDVRPSolver(BaseSolver):
 
                 gp.quicksum(
 
-                    self.x[i, d, vehicle]
+                    self.x[i, j, vehicle]
 
-                    for d in self.depots
+                    for (i, j, k) in self.valid_arcs
 
-                    for i in self.customers
+                    if (
+                        k == vehicle
+                        and i in self.customers
+                        and j in self.depots
+                    )
 
                 )
 
-                <=
+                ==
 
                 self.y[vehicle],
 
                 name=f"return_{vehicle}"
 
             )
+
+
+    # ============================================================
+    # VEHICLE ACTIVATION
+    # ============================================================
+
+    def _vehicle_activation_constraint(self) -> None:
+        """
+        Activación del vehículo.
+        """
+
+        for (i, j, k) in self.valid_arcs:
+
+            self.model.addConstr(
+
+                self.x[i, j, k]
+
+                <=
+
+                self.y[k],
+
+                name=f"activation_{i}_{j}_{k}"
+
+            )
+            
+    def _maximum_route_time_constraint(self) -> None:
+        """
+        Ningún vehículo puede superar el tiempo máximo permitido.
+        """
+
+        if self.max_route_time is None:
+            return
+
+        for vehicle in self.vehicles:
+
+            self.model.addConstr(
+
+                gp.quicksum(
+                    self.travel_time[i][j]
+                    * self.x[i, j, vehicle]
+
+                    for (i, j, k) in self.valid_arcs
+
+                    if k == vehicle
+
+                )
+
+                <=
+
+                self.max_route_time,
+
+                name=f"route_time_{vehicle}"
+
+            )
+
 
     # ============================================================
     # SUBTOUR ELIMINATION (MTZ)
@@ -438,34 +426,27 @@ class HMDVRPSolver(BaseSolver):
 
         n = len(self.customers)
 
-        for vehicle in self.vehicles:
+        for (i, j, vehicle) in self.valid_arcs:
 
-            for i in self.customers:
+            if i not in self.customers:
+                continue
 
-                for j in self.customers:
+            if j not in self.customers:
+                continue
 
-                    if i == j:
-                        continue
+            self.model.addConstr(
 
-                    self.model.addConstr(
+                self.u[i]
+                -
+                self.u[j]
+                +
+                n * self.x[i, j, vehicle]
+                <=
+                n - 1,
 
-                        self.u[i]
+                name=f"mtz_{vehicle}_{i}_{j}"
 
-                        -
-
-                        self.u[j]
-
-                        +
-
-                        n * self.x[i, j, vehicle]
-
-                        <=
-
-                        n - 1,
-
-                        name=f"mtz_{vehicle}_{i}_{j}"
-
-                    )
+            )
                     
     # ============================================================
     # OPTIMIZATION
@@ -539,57 +520,38 @@ class HMDVRPSolver(BaseSolver):
     # ROUTE EXTRACTION
     # ============================================================
 
-    def _extract_routes(
-        self,
-    ) -> list[dict[str, Any]]:
+    def _extract_routes(self) -> list[dict[str, Any]]:
         """
         Extrae las rutas generadas para cada vehículo.
         """
-
         routes = []
-
         for vehicle in self.vehicles:
-
             vehicle_route = []
-
-            for i in self.nodes:
-
-                for j in self.nodes:
-
-                    if i == j:
-                        continue
-
-                    if self.x[i, j, vehicle].X > 0.5:
-
-                        vehicle_route.append({
-
-                            "from": i,
-
-                            "to": j,
-
-                            "vehicle": vehicle
-
-                        })
+            for (i, j, k) in self.valid_arcs:
+                if k != vehicle:
+                    continue
+                if self.x[i, j, k].X > 0.5:
+                    vehicle_route.append({
+                        "from": i,
+                        "to": j,
+                        "vehicle": vehicle
+                    })
 
             if vehicle_route:
-
                 routes.append({
-
                     "vehicle": vehicle,
-
                     "route": vehicle_route
-
                 })
 
         return routes
+            
+
 
     # ============================================================
     # USED VEHICLES
     # ============================================================
 
-    def _extract_used_vehicles(
-        self,
-    ) -> list[Any]:
+    def _extract_used_vehicles(self) -> list[Any]:
         """
         Obtiene los vehículos utilizados.
         """
@@ -608,28 +570,17 @@ class HMDVRPSolver(BaseSolver):
     # RESPONSE
     # ============================================================
 
-    def build_response(
-        self,
-        analysis: dict[str, Any],
-        mathematical_model: gp.Model,
-        solution: dict[str, Any],
-    ) -> dict[str, Any]:
+    def build_response(self, analysis: dict[str, Any],mathematical_model: gp.Model, solution: dict[str, Any]) -> dict[str, Any]:
         """
         Construye la respuesta estructurada del solver.
         """
 
         return {
-
             "status": solution["status"],
-
             "model": self.model_name,
-
             "analysis": analysis,
-
             "mathematical_model": {
-
                 "objective": "Minimize total transportation cost",
-
                 "variables": [
 
                     "x[i,j,k]",
@@ -641,18 +592,13 @@ class HMDVRPSolver(BaseSolver):
                 ],
 
                 "constraints": [
-
                     "Customer visit",
-
                     "Flow conservation",
-
                     "Vehicle capacity",
-
                     "Depot departure",
-
                     "Depot return",
-
-                    "Subtour elimination"
+                    "Subtour elimination",
+                    "Maximum route time"
 
                 ]
 

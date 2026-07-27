@@ -24,8 +24,8 @@ class EmbeddingModel:
     múltiples cargas en memoria.
 
     """
-    # DEFAULT_MODEL = "BAAI/bge-m3"
-    DEFAULT_MODEL = "intfloat/multilingual-e5-small"
+    DEFAULT_MODEL = "BAAI/bge-m3"
+    # DEFAULT_MODEL = "intfloat/multilingual-e5-small"
     # Instancias compartidas
     _sentence_model = None
     _langchain_model = None
@@ -72,7 +72,6 @@ class EmbeddingModel:
     # =====================================================
 
     def info(self):
-
         print("=" * 60)
         print("Embedding Model")
         print("=" * 60)

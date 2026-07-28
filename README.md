@@ -345,6 +345,30 @@ La interfaz gráfica será desarrollada en Streamlit y contará con diferentes m
 | ⚙️ Configuración | 🚧 Placeholder |
 | 📈 Dashboard | 🚧 Placeholder |
 
+## Pruebas Interfaz consola
+ 📌 **Inicio**
+    <p align="center">
+    <img src="evidencias/inicio.png" width="900">
+    </p>
+ 📌 **solicitud 1: ¿Cuál es el horario operativo de la empresa?**
+    <p align="center">
+    <img src="evidencias/pregunta_1.png" width="900">
+    </p>
+ 📌 **solicitud 2: ¿Cuál es el stock mínimo permitido en inventario?**
+    <p align="center">
+    <img src="evidencias/pregunta_2.png" width="900">
+    </p>
+ 📌 **solicitud 3a: Genera un resumen del desempeño logístico mensual.**
+    <p align="center">
+    <img src="evidencias/pregunta_3a.png" width="900">
+    </p>
+ 📌 **solicitud 3b: Genera un resumen del desempeño logístico mensual.**
+    <p align="center">
+    <img src="evidencias/pregunta_3b.png" width="900">
+    </p>
+
+---
+
 
 ## 📚 Base de conocimiento corporativa
 

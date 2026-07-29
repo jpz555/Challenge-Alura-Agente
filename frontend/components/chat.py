@@ -14,3 +14,10 @@ def render_chat():
                 st.caption(
                     f'{message["agent"]} • {message["time"]:.2f} s'
                 )
+                
+                
+    # SOLO si hay una respuesta pendiente
+    if st.session_state.get("pending_question"):
+
+        with st.chat_message("assistant"):
+            st.markdown("Pensando...")

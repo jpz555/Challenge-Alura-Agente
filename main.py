@@ -12,13 +12,14 @@ Responsabilidades
 """
 
 from orchestrator.graph import AgentGraph
+from orchestrator.nodes import GraphNodes
 
 class LogiMindAI:
     """
     Aplicación principal del sistema multiagente.
     """
     def __init__(self):
-        self.graph = AgentGraph()
+        self.graph = AgentGraph(GraphNodes(provider="groq"))
 
     def invoke(self, query: str):
         """

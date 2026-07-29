@@ -8,30 +8,38 @@ from langgraph.graph import END
 from langgraph.graph import START
 from langgraph.graph import StateGraph
 from agents.base.state import AgentState
-from orchestrator.nodes import supervisor_node,knowledge_node, analytics_node, decision_node
+from orchestrator.nodes import GraphNodes
 from orchestrator.graph_router import GraphRouter
 
 from IPython.display import Image
 from IPython.display import display
 from pathlib import Path
 
+from rag.models import ModelFactory
+from tools.data.corporate_data_loader import CorporateDataLoader
+
+
+
+
 class AgentGraph:
     """
     Grafo principal del sistema.
     """
 
-    def __init__(self):
+    def __init__(self, nodes: GraphNodes):
+        
+        self.nodes = nodes
         self.builder = StateGraph(AgentState)
         self._build()
         self.graph = self.builder.compile()
 
     def _build(self):
         # Nodos
-        self.builder.add_node("supervisor",supervisor_node)
-        self.builder.add_node("knowledge",knowledge_node)
+        self.builder.add_node("supervisor", self.nodes.supervisor.invoke)
+        self.builder.add_node("knowledge",self.nodes.knowledge.invoke)
         # Placeholders (por ahora)
-        self.builder.add_node("analytics", analytics_node)
-        self.builder.add_node("decision", decision_node)
+        self.builder.add_node("analytics", self.nodes.analytics.invoke)
+        self.builder.add_node("decision", self.nodes.decision_support.invoke)
 
         # Inicio
         self.builder.add_edge(START,"supervisor")

@@ -17,46 +17,48 @@ from tools.data.corporate_data_loader import CorporateDataLoader
 from tools.rag.rag_tool import RAGTool
 
 
-# modelos llm
-model = ModelFactory.create(provider='groq')
-
-# data
-data = CorporateDataLoader(Path("documents/data/corporate_data.xlsx"))
 
 
-# Agentes
-# componentes compartidos
-rag_tool = RAGTool()
-supervisor = SupervisorAgent(model=model)
-knowledge = KnowledgeAgent(rag_tool=rag_tool)
-analytics = AnalyticsAgent(rag_tool=rag_tool, model=model, corporate_data=data)
-decision_support = DecisionSupportAgent(rag_tool=rag_tool, model=model)
+class GraphNodes:
+    def __init__(self, provider=None, model=None):
+        # modelos llm
+        llm = ModelFactory.create(provider=provider, model=model)
+        # data
+        data = CorporateDataLoader(Path("documents/data/corporate_data.xlsx"))
+        
+        # Agentes
+        # componentes compartidos
+        rag_tool = RAGTool()
+        self.supervisor = SupervisorAgent(model=llm)
+        self.knowledge = KnowledgeAgent(rag_tool=rag_tool)
+        self.analytics = AnalyticsAgent(rag_tool=rag_tool, model=llm, corporate_data=data)
+        self.decision_support = DecisionSupportAgent(rag_tool=rag_tool, model=llm)
 
-def supervisor_node(state: AgentState) -> AgentState:
-    """
-    Nodo Supervisor.
-    """
-    # print(type(state))
-    # print(state)
-    return supervisor.invoke(state)
+    def supervisor_node(self, state: AgentState) -> AgentState:
+        """
+        Nodo Supervisor.
+        """
+        # print(type(state))
+        # print(state)
+        return self.supervisor.invoke(state)
 
 
-def knowledge_node(state: AgentState) -> AgentState:
-    """
-    Nodo Knowledge.
-    """
-    return knowledge.invoke(state)
+    def knowledge_node(self, state: AgentState) -> AgentState:
+        """
+        Nodo Knowledge.
+        """
+        return self.knowledge.invoke(state)
 
-def analytics_node(state: AgentState) -> AgentState:
-    """
-    Nodo Analytics.
-    """
-    return analytics.invoke(state)
-    
+    def analytics_node(self, state: AgentState) -> AgentState:
+        """
+        Nodo Analytics.
+        """
+        return self.analytics.invoke(state)
+        
 
-def decision_node(state: AgentState) -> AgentState:
-    """
-    Nodo Decision Support.
-    """
-    # state.response = "Decision Support Agent aún no implementado."
-    return decision_support.invoke(state)
+    def decision_node(self, state: AgentState) -> AgentState:
+        """
+        Nodo Decision Support.
+        """
+        # state.response = "Decision Support Agent aún no implementado."
+        return self.decision_support.invoke(state)

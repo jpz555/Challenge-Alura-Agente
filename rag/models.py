@@ -60,7 +60,7 @@ class ModelFactory:
     """
 
     @classmethod
-    def create(cls, provider: str | None = None,model: str | None = None):
+    def create(cls, provider: str | None = None, model: str | None = None):
         """
         Crea un modelo completamente configurado.
         """

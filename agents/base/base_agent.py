@@ -38,7 +38,7 @@ class BaseAgent(ABC):
             return self.inventory_formatter.format(tool_name, tool_result)
 
         elif tool_name in ("optimize_schedule", "assign_resource","check_availability",):
-            return self.scheduling_formatter, format(tool_name, tool_result)
+            return self.scheduling_formatter.format(tool_name, tool_result)
 
         return str(tool_result)
     
